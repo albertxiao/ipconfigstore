@@ -3,3 +3,4 @@ ipconfigstore
 ipconfigstore.exe
 *.o
 *.obj
+_codeql_detected_source_root

@@ -291,19 +291,21 @@ bool readUnpackedLine(FILE *stream, char **line)
 
 bool parseUnpackedPair(char *line, char **key, char **value)
 {
-	char *next = index(line, ':');
+	char *next = strchr(line, ':');
 
 	if (!next)
 	{
 		return false;
 	}
 
-	*key = strndup(line, next - line);
-
+	size_t len = next - line;
+	*key = malloc(len + 1);
 	if (!*key)
 	{
 		return false;
 	}
+	strncpy(*key, line, len);
+	(*key)[len] = '\0';
 
 	while (*++next && isspace(*next));
 	*value = strdup(next);
@@ -319,7 +321,7 @@ bool parseUnpackedPair(char *line, char **key, char **value)
 
 bool parseUnpackedRoute(char *string, struct IPConfigRoute *route)
 {
-	char *next = index(string, ' ');
+	char *next = strchr(string, ' ');
 
 	if (next)
 	{
@@ -345,19 +347,21 @@ bool parseUnpackedRoute(char *string, struct IPConfigRoute *route)
 
 bool parseUnpackedLink(char *string, struct IPConfigLink *link)
 {
-	char *next = index(string, '/');
+	char *next = strchr(string, '/');
 
 	if (!next)
 	{
 		return false;
 	}
 
-	link->address = strndup(string, next - string);
-
+	size_t len = next - string;
+	link->address = malloc(len + 1);
 	if (!link->address)
 	{
 		return false;
 	}
+	strncpy(link->address, string, len);
+	link->address[len] = '\0';
 
 	if (!parseUnpackedUInt32(++next, &link->prefix))
 	{
