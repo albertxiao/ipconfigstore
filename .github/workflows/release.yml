@@ -36,16 +36,26 @@ jobs:
       - name: Set up build environment (macOS)
         if: matrix.os == 'macos-latest'
         run: |
-          # macOS comes with clang/gcc by default
-          which cc || which gcc || which clang
+          # Verify C compiler is available
+          cc --version
 
       - name: Set up build environment (Windows)
         if: matrix.os == 'windows-latest'
-        run: |
-          choco install mingw -y
-          echo "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            mingw-w64-x86_64-gcc
+            make
 
-      - name: Build
+      - name: Build (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: msys2 {0}
+        run: make
+
+      - name: Build (Linux/macOS)
+        if: matrix.os != 'windows-latest'
         run: make
 
       - name: Rename artifact
